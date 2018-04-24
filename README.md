@@ -1,4 +1,5 @@
-# Go static responder
+# Go Static Responser
+[![Docker Stars](https://img.shields.io/docker/stars/delfer/go-static-responser.svg)](https://hub.docker.com/r/delfer/go-static-responser/) [![Docker Pulls](https://img.shields.io/docker/pulls/delfer/go-static-responser.svg)](https://hub.docker.com/r/delfer/go-static-responser/) [![Docker Automated build](https://img.shields.io/docker/automated/delfer/go-static-responser.svg)](https://hub.docker.com/r/delfer/go-static-responser/) [![Docker Build Status](https://img.shields.io/docker/build/delfer/go-static-responser.svg)](https://hub.docker.com/r/delfer/go-static-responser/) [![MicroBadger Layers](https://img.shields.io/microbadger/layers/delfer/go-static-responser.svg)](https://hub.docker.com/r/delfer/go-static-responser/) [![MicroBadger Size](https://img.shields.io/microbadger/image-size/delfer/go-static-responser.svg)](https://hub.docker.com/r/delfer/go-static-responser/)
 
 Send static HTTP response fast and log visits to ClickHouse 
 
