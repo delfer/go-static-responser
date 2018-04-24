@@ -15,11 +15,14 @@ var (
 	port       = "8080"
 	bufferSize = 100000
 	logs       chan *http.Request
+	disableCH  = false
 )
 
 func index(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	fmt.Fprintf(w, "%s", response)
-	logs <- r
+	if !disableCH {
+		logs <- r
+	}
 }
 
 func load(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
@@ -43,11 +46,17 @@ func main() {
 		}
 	}
 
+	if v, present := os.LookupEnv("DISABLE_CH"); present && v == "true" {
+		disableCH = true
+	}
+
 	logs = make(chan *http.Request, bufferSize)
 
 	response = os.Getenv("RESPONSE")
 
-	go logger(logs)
+	if !disableCH {
+		go logger(logs)
+	}
 
 	router := httprouter.New()
 	router.GET("/", index)

@@ -11,9 +11,11 @@ Send static HTTP response fast and log visits to ClickHouse
 
 ## Configuration
 
+Environment variables:
 - `PORT` - HTTP listen port (8080 by default)
 - `RESPONSE` - string which response to `GET /`
 - `BUFFER` - buffer size (in requests) between HTTP server and DB writer (100,000 bн default)
+- `DISABLE_CH` - set `true` to disable writing to ClickHouse
 - ClickHouse connection
   - `CH_HOST` - host (127.0.0.1 by default)
   - `CH_PORT` - port (9000 by default)
