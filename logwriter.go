@@ -6,6 +6,7 @@ import (
 	"net"
 	"os"
 	"strconv"
+	"time"
 
 	"database/sql"
 	"net/http"
@@ -71,6 +72,10 @@ func logger(logs chan *http.Request) {
 		log.Fatal(err)
 	}
 
+	connect.SetConnMaxLifetime(4 * time.Minute) // ClickHouse will drop connection after 5 minues of inactive
+	connect.SetMaxIdleConns(1)
+	connect.SetMaxOpenConns(4)
+
 	// Check DB connection
 	if err := connect.Ping(); err != nil {
 		if exception, ok := err.(*clickhouse.Exception); ok {
@@ -106,9 +111,18 @@ func logger(logs chan *http.Request) {
 
 	// Insert data from channel
 	for {
+		var (
+			tx   *sql.Tx
+			stmt *sql.Stmt
+			err  error
+		)
+
+		// Wait (blocking) for first element in channel and iterate them
+		for i := range logs {
+			if tx == nil {
 		// Prepare query
-		tx, _ := connect.Begin()
-		stmt, err := tx.Prepare(`INSERT INTO version_requests (
+				tx, _ = connect.Begin()
+				stmt, err = tx.Prepare(`INSERT INTO access (
 				method,
 				uri,
 				proto,
@@ -125,9 +139,8 @@ func logger(logs chan *http.Request) {
 		if err != nil {
 			log.Fatal(err)
 		}
+			}
 
-		// Wait (blocking) for first element in channel and iterate them
-		for i := range logs {
 			// Prepare values
 			// Header as JSON
 			headerJSON, _ := json.Marshal(&i.Header)
@@ -171,5 +184,6 @@ func logger(logs chan *http.Request) {
 		if err := tx.Commit(); err != nil {
 			log.Println(err)
 		}
+		stmt.Close()
 	}
 }
