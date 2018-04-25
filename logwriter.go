@@ -87,7 +87,7 @@ func logger(logs chan *http.Request) {
 	}
 
 	_, err = connect.Exec(`
-		CREATE TABLE IF NOT EXISTS version_requests (
+		CREATE TABLE IF NOT EXISTS access (
 			date			Date DEFAULT today(),
 			dt				DateTime DEFAULT now(),
 			method			String,
@@ -102,7 +102,7 @@ func logger(logs chan *http.Request) {
 			buffer_size		UInt32,
 			response		String,
 			code			UInt16
-		) ENGINE = MergeTree(date, (dt, remote_host, remote_port), 8192)
+		) ENGINE = MergeTree(date, (date), 8192)
 	`)
 
 	if err != nil {
@@ -120,25 +120,25 @@ func logger(logs chan *http.Request) {
 		// Wait (blocking) for first element in channel and iterate them
 		for i := range logs {
 			if tx == nil {
-		// Prepare query
+				// Prepare query
 				tx, _ = connect.Begin()
 				stmt, err = tx.Prepare(`INSERT INTO access (
-				method,
-				uri,
-				proto,
-				header, 
-				body, 
-				host,
-				remote_host,
-				remote_port,
-				buffer_used,
-				buffer_size,
-				response,
-				code
-				) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
-		if err != nil {
-			log.Fatal(err)
-		}
+						method,
+						uri,
+						proto,
+						header, 
+						body, 
+						host,
+						remote_host,
+						remote_port,
+						buffer_used,
+						buffer_size,
+						response,
+						code
+					) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+				if err != nil {
+					log.Fatal(err)
+				}
 			}
 
 			// Prepare values
